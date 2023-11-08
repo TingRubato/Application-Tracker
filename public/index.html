@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>JSON Job Records Viewer</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #f4f4f4;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+
+    .container {
+      background-color: #fff;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      padding: 20px;
+      width: 90%;
+      max-width: 600px;
+      margin: 20px;
+    }
+
+    .header {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    button {
+      padding: 10px 20px;
+      border: 1px solid #ddd;
+      background-color: #007bff;
+      color: white;
+      border-radius: 4px;
+      cursor: pointer;
+      margin-right: 5px;
+    }
+
+    button:disabled {
+      background-color: #ccc;
+      cursor: default;
+    }
+
+    button:hover:not(:disabled) {
+      background-color: #0056b3;
+    }
+
+    #jsonData {
+      border: 1px solid #ddd;
+      padding: 10px;
+      border-radius: 4px;
+      min-height: 200px;
+      margin-bottom: 20px;
+    }
+
+    .record strong {
+      color: #333;
+    }
+
+    .record:not(:last-child) {
+      margin-bottom: 10px;
+    }
+
+    .scrollable-text {
+      max-height: 150px;
+      overflow-y: auto;
+      border: 1px solid #ccc;
+      padding: 5px;
+      margin-top: 5px;
+      background-color: #f9f9f9;
+      border-radius: 4px;
+    }
+
+    .footer {
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <div class="header">
+      <h1>Job Records Viewer</h1>
+      <input type="file" id="jsonFile" accept=".json" onchange="handleFileUpload(this)" />
+    </div>
+
+    <div id="jsonData">
+      <!-- JSON data will be displayed here -->
+    </div>
+
+    <div class="footer">
+      <button id="prevBtn" onclick="getPrevRecord()" disabled>Previous</button>
+      <button id="nextBtn" onclick="getNextRecord()" disabled>Next</button>
+    </div>
+  </div>
+
+  <script>
+    let jsonDataArray = [];
+    let currentIndex = 0;
+
+    function handleFileUpload(input) {
+      const file = input.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          try {
+            jsonDataArray = JSON.parse(e.target.result);
+            if (jsonDataArray.length > 0) {
+              displayData(currentIndex);
+              document.getElementById('nextBtn').disabled = jsonDataArray.length === 1;
+            } else {
+              document.getElementById('jsonData').innerHTML = "<p>No data found in JSON file.</p>";
+            }
+          } catch (error) {
+            alert('Invalid JSON file. Please provide a valid JSON.');
+          }
+        };
+        reader.readAsText(file);
+      }
+    }
+
+    function displayData(index) {
+      const data = jsonDataArray[index];
+      const jsonDataDiv = document.getElementById('jsonData');
+      jsonDataDiv.innerHTML = ''; // Clear previous data
+
+      if (data) {
+        for (const [key, value] of Object.entries(data)) {
+          const p = document.createElement('p');
+          p.classList.add('record');
+          if (key === 'job_link') {
+            p.innerHTML = `<strong>${key}:</strong> <a href="${value}" target="_blank">${value}</a>`;
+          } else if (key === 'job_description') {
+            p.innerHTML = `<strong>${key}:</strong> <div class="scrollable-text">${value}</div>`;
+          } else {
+            p.innerHTML = `<strong>${key}:</strong> ${value}`;
+          }
+          jsonDataDiv.appendChild(p);
+        }
+
+        // Checkbox for marking as applied
+        const checkbox = document.createElement('input');
+        checkbox.type = 'checkbox';
+        checkbox.className = 'applied-checkbox';
+        checkbox.id = 'applied_' + data.id; // Unique ID for each checkbox
+        checkbox.dataset.jobId = data.id; // Store job ID in dataset for later retrieval
+
+        const label = document.createElement('label');
+        label.htmlFor = checkbox.id;
+        label.appendChild(document.createTextNode(' Marked as applied'));
+        label.insertBefore(checkbox, label.firstChild);
+        jsonDataDiv.appendChild(label);
+
+        // Event listener for the checkbox
+        checkbox.addEventListener('change', function() {
+          markJobAsApplied(data, index);
+        });
+      }
+
+      updateNavigationButtons();
+    }
+
+    function updateNavigationButtons() {
+      document.getElementById('prevBtn').disabled = currentIndex === 0;
+      document.getElementById('nextBtn').disabled = currentIndex >= jsonDataArray.length - 1;
+    }
+
+    function getPrevRecord() {
+      if (currentIndex > 0) {
+        currentIndex -= 1;
+        displayData(currentIndex);
+      }
+    }
+
+    function getNextRecord() {
+      if (currentIndex < jsonDataArray.length - 1) {
+        currentIndex += 1;
+        displayData(currentIndex);
+      }
+    }
+
+    async function markJobAsApplied(jobData, index) {
+      try {
+        const response = await fetch('/mark-applied', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            jobId: jobData.id,
+            jobLink: jobData.job_link,
+            companyName: jobData.company_name,
+            companyLocation: jobData.company_location,
+            salary: jobData.salary,
+            jobType: jobData.job_type,
+            jobDescription: jobData.job_description
+          })
+        });
+
+        if (!response.ok) {
+          throw new Error('Database operation failed');
+        }
+
+        const data = await response.json();
+        if (data.success) {
+          alert('Job marked as applied.');
+          // Move to the next record if successful
+          getNextRecord();
+        } else {
+          throw new Error(data.message);
+        }
+      } catch (error) {
+        alert('Failed to mark the job as applied: ' + error.message);
+      } finally {
+        // Uncheck the checkbox regardless of success or failure
+        const checkboxes = document.querySelectorAll('.applied-checkbox');
+        if (checkboxes[index]) {
+          checkboxes[index].checked = false;
+        }
+      }
+    }
+  </script>
+
+</body>
+</html>
