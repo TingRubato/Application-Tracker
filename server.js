@@ -10,10 +10,6 @@ require('dotenv').config();
 
 const app = express();
 
-// const pool = new Pool({
-//   connectionString: 'postgresql://dbmasteruser:Gk{}0qxbMX{GghYR&Wr*GtJT#1;X|>t,@ls-1c75e95833249c463cebc965c3b4f0ba33d690f2.clpgjfkqnq8g.us-east-2.rds.amazonaws.com:5432/job_search_db?sslmode=require',
-// });
-
 const pool = new Pool({
   user: process.env.DB_USER,
   host: process.env.DB_HOST,
