@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import axios from 'axios';
 import './JobDetail.css'; // Ensure you have the CSS file for styling
+
 function JobDetail() {
   const { job_fccid } = useParams(); // Corrected to job_fccid
   const [job, setJob] = useState(null);
@@ -81,6 +82,7 @@ function JobDetail() {
       <p><strong>Description:</strong> {job.job_description}</p>  
       <button onClick={handleApplyClick}>Apply</button>
       <button onClick={handleMarkAsApplied}>{applicationStatus}</button>
+      <button onClick={() => window.history.back()}>Go Back</button>
     </div>
   );
 }
