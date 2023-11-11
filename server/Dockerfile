@@ -1,11 +1,18 @@
 FROM node:16
 
-ENV DB_USER=I AM \
-    DB_PASSWORD="Absolutely" \
-    DB_HOST=a retard \
-    DB_PORT=2345 \
-    DB_NAME=nomore \
-    JWT_SECRET=compromise
+ARG DB_USER
+ARG DB_PASSWORD
+ARG DB_HOST
+ARG DB_PORT
+ARG DB_NAME
+ARG JWT_SECRET
+
+ENV DB_USER=$DB_USER \
+    DB_PASSWORD=$DB_PASSWORD \
+    DB_HOST=$DB_HOST \
+    DB_PORT=$DB_PORT \
+    DB_NAME=$DB_NAME \
+    JWT_SECRET=$JWT_SECRET
 
 # Set the working directory in the container
 WORKDIR /usr/src/app

@@ -110,7 +110,7 @@ app.post('/mark-applied', authenticateToken, async (req, res) => {
   try {
     const queryText = `
       INSERT INTO applied_jobs (
-        job_id, 
+        job_jk, 
         job_link, 
         company_name, 
         company_location, 
@@ -164,6 +164,24 @@ app.get('/job-listings/:job_jk', authenticateToken, async (req, res) => {
     }
   } catch (err) {
     console.error('Error fetching job details', err.stack);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+
+app.get('/is-applied/:job_jk', authenticateToken, async (req, res) => {
+  try {
+    const { job_jk } = req.params;
+    // Query to check if the job is applied by the user
+    const query = `
+      SELECT 1 FROM applied_jobs  WHERE job_jk = $1`;
+    const { rows } = await pool.query(query, [job_jk]);
+
+    // If rows array is not empty, job is applied
+    const isApplied = rows.length > 0;
+
+    res.json({ isApplied });
+  } catch (err) {
+    console.error('Error in checking applied job', err.stack);
     res.status(500).json({ error: 'Internal Server Error' });
   }
 });
