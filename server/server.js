@@ -143,6 +143,7 @@ app.post('/mark-applied', authenticateToken, async (req, res) => {
 app.get('/job-listings', authenticateToken, async (req, res) => {
   try {
     const query = 'SELECT * FROM processed_job ORDER BY scrap_time DESC';
+    const { rows } = await pool.query(query);
     res.json(rows);
   } catch (err) {
     console.error('Error fetching job listings', err.stack);
@@ -153,7 +154,7 @@ app.get('/job-listings', authenticateToken, async (req, res) => {
 app.get('/job-listings/:job_jk', authenticateToken, async (req, res) => {
   console.log("Fetching job details for jk ID:", req.params.job_jk);
   try {
-    const { job_fccjk } = req.params;
+    const { job_jk } = req.params;
     const query = 'SELECT * FROM processed_job WHERE job_jk = $1';
     const { rows } = await pool.query(query, [job_jk]);
     if (rows.length > 0) {

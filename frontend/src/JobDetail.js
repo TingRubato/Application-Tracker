@@ -1,31 +1,52 @@
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import axios from 'axios';
-import './JobDetail.css'; // Ensure you have the CSS file for styling
-import { useMemo } from "react";
-import { GoogleMap, Marker, useLoadScript } from "@react-google-maps/api";
+import './JobDetail.css';
+import { useMemo } from 'react';
+import { GoogleMap, Marker, useLoadScript } from '@react-google-maps/api';
 
 
 function JobDetail() {
-  const { job_fccid } = useParams(); // Corrected to job_fccid
+
+  const { job_jk } = useParams();
   const [job, setJob] = useState(null);
   const [applicationStatus, setApplicationStatus] = useState('Not Applied');
+  
+  
+  // const defaultCenter = { lat: 38.624691, lng: -90.184776 };
+
 
   useEffect(() => {
     const fetchJobDetail = async () => {
       try {
-        const response = await axios.get(`${process.env.REACT_APP_API_URL}/job-listings/${job_fccid}`, {
+        const response = await axios.get(`${process.env.REACT_APP_API_URL}/job-listings/${job_jk}`, {
           headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
         });
         setJob(response.data);
       } catch (err) {
-        // Ideally, you should handle the error more explicitly here
         console.error('Error fetching job details:', err);
       }
     };
 
     fetchJobDetail();
-  }, [job_fccid]); // Dependency array updated to job_fccid
+  }, [job_jk]);
+
+  // Define the parseLocation function here
+  const parseLocation = (locationString) => {
+    if (!locationString) return null;
+    const coordinates = locationString.match(/POINT\((.+)\s(.+)\)/);
+    if (!coordinates) return null;
+    return {
+      lat: parseFloat(coordinates[2]),
+      lng: parseFloat(coordinates[1])
+    };
+  };
+  // Calculate location based on job data
+  const location = job ? parseLocation(job.job_location) : null;
+
+  // useMemo is now at the top level and not conditional
+  const center = useMemo(() => location || { lat: 38.624691, lng: -90.184776 }, [location]);
+
 
   const handleApplyClick = () => {
     if (job && job.job_link) {
@@ -36,33 +57,28 @@ function JobDetail() {
   const { isLoaded } = useLoadScript({
     googleMapsApiKey: process.env.REACT_APP_GOOGLE_API_KEY,
   });
-  const center = useMemo(() => ({ lat: 38.624691, lng: -90.184776 }), []);
-
 
   const handleMarkAsApplied = async () => {
-    if (!job) return;  // Check if the job details are available
+    if (!job) return;
 
-    // Create an object with the structure your backend expects
     const jobApplication = {
-      jobId: job.id, // Assuming 'id' is the correct field and corresponds to 'jobId'
+      jobId: job.id,
       jobLink: job.job_link,
       companyName: job.company_name,
       companyLocation: job.job_location,
-      salary: job.salary || 'Not provided', // Use a default value or omit if the salary is null
+      salary: job.salary || 'Not provided',
       jobType: job.job_type,
       jobDescription: job.job_description
     };
 
     try {
-      // Send the POST request with the jobApplication object
       const response = await axios.post(`${process.env.REACT_APP_API_URL}/mark-applied`, jobApplication, {
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}` // Retrieve the JWT from localStorage
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
         }
       });
 
-      // Update the application status based on the response from the backend
       if (response.data.success) {
         setApplicationStatus('Applied');
       } else {
@@ -74,14 +90,9 @@ function JobDetail() {
     }
   };
 
-
   if (!job) {
     return <div>Loading...</div>;
   }
-  // 解析地理坐标
-  const coordinates = job.job_location.match(/POINT\((.+)\s(.+)\)/);
-  const lat = parseFloat(coordinates[2]);
-  const lon = parseFloat(coordinates[1]);
 
   return (
     <div className="job-detail">
@@ -104,10 +115,10 @@ function JobDetail() {
         ) : (
           <GoogleMap
             mapContainerClassName="map-container"
-            center={center}
+            center={location || center}
             zoom={10}
           >
-            <Marker position={{ lat: lat, lng: lon }} />
+            {location && <Marker position={location} />}
           </GoogleMap>
         )}
       </div>
