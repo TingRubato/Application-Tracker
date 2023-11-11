@@ -1,0 +1,16 @@
+version: '3.8'
+services:
+  frontend:
+    image: x2derivative/frontend:0.1-amd64
+    ports:
+      - "80:80"
+  backend:
+    image: x2derivative/server:latest
+    environment:
+      - DB_USER=
+      - DB_PASSWORD=
+      - DB_HOST=
+      - DB_PORT=
+      - DB_NAME=
+    ports:
+      - "3001:3001"

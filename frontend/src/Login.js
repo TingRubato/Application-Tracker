@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import { Link, useNavigate } from 'react-router-dom'; // Import Link and useNavigate
+import './Login.css'; // Import the CSS file
 
 function Login() {
   const [username, setUsername] = useState('');
@@ -29,7 +30,7 @@ function Login() {
   
 
   return (
-    <div>
+    <div className="login-container">
       <h2>Login</h2>
       {error && <p className="error">{error}</p>}
       <form onSubmit={handleSubmit}>
