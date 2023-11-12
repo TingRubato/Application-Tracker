@@ -4,6 +4,8 @@ import JobList from './JobList';
 import JobDetail from './JobDetail';
 import Login from './Login';
 import Register from './Register';
+import JobCenter from './JobCenter';
+import JobApplied from './JobApplied';
 
 function App() {
   return (
@@ -20,6 +22,12 @@ function App() {
 
         {/* Protected route for the list of jobs */}
         <Route path="/jobs" element={<JobList />} />
+
+        {/* Route for job details */}
+        <Route path="/jobcenter" element={<JobCenter />} />
+
+        {/* Route for job details */}
+        <Route path="/jobapplied" element={<JobApplied />} />
 
         {/* Route for job details */}
         <Route path="/jobs/:job_jk" element={<JobDetail />} />

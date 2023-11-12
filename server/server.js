@@ -151,6 +151,17 @@ app.get('/job-listings', authenticateToken, async (req, res) => {
   }
 });
 
+app.get('/applied-jobs', authenticateToken, async (req, res) => {
+  try {
+    const query = 'SELECT * FROM applied_jobs ORDER BY applied_timestamp ASC';
+    const { rows } = await pool.query(query);
+    res.json(rows);
+  } catch (err) {
+    console.error('Error fetching job listings', err.stack);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+
 app.get('/job-listings/:job_jk', authenticateToken, async (req, res) => {
   console.log("Fetching job details for jk ID:", req.params.job_jk);
   try {
@@ -182,6 +193,17 @@ app.get('/is-applied/:job_jk', authenticateToken, async (req, res) => {
     res.json({ isApplied });
   } catch (err) {
     console.error('Error in checking applied job', err.stack);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+
+app.get('/applied-jobs-count', authenticateToken, async (req, res) => {
+  try {
+    const query = 'SELECT COUNT(*) FROM applied_jobs';
+    const { rows } = await pool.query(query);
+    res.json(rows[0]);
+  } catch (err) {
+    console.error('Error fetching applied jobs count', err.stack);
     res.status(500).json({ error: 'Internal Server Error' });
   }
 });

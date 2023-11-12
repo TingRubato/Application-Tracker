@@ -20,7 +20,7 @@ function Login() {
       localStorage.setItem('token', accessToken); // Store the token
       console.log('Token set in local storage, navigating to home...');
   
-      navigate('/jobs'); // Redirect to the home page or dashboard
+      navigate('/jobcenter'); // Redirect to the home page or dashboard
       console.log('Navigation should have occurred');
     } catch (err) {
       console.error('Login error:', err);
