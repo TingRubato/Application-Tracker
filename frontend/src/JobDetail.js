@@ -104,7 +104,7 @@ function JobDetail() {
         <p><strong>Post Date:</strong> {new Date(job.post_date).toLocaleDateString()}</p>
         {job.salary && <p><strong>Salary:</strong> {job.salary.toLocaleString()}</p>}
         <p><strong>Type:</strong> {job.job_type}</p>
-        <p><strong>Description:</strong> {job.job_description}</p>
+        <p className="job-description"><strong>Description:</strong> {job.job_description}</p>
         <button onClick={handleApplyClick}>Apply</button>
         <button onClick={handleMarkAsApplied}>{applicationStatus}</button>
         <button onClick={() => window.history.back()}>Go Back</button>

@@ -6,6 +6,7 @@ import Login from './Login';
 import Register from './Register';
 import JobCenter from './JobCenter';
 import JobApplied from './JobApplied';
+import UserInfo from './UserInfo';
 
 function App() {
   return (
@@ -25,6 +26,8 @@ function App() {
 
         {/* Route for job details */}
         <Route path="/jobcenter" element={<JobCenter />} />
+        {/* Route for User Info */}
+        <Route path="/userinfo" element={<UserInfo />} />
 
         {/* Route for job details */}
         <Route path="/jobapplied" element={<JobApplied />} />
