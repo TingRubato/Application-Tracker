@@ -44,13 +44,18 @@ const JobCenter = () => {
     }, []);
 
     return (
-
         <div className="job-center-container">
             <div className="job-center-header">Your Job Center</div>
-            <div className="dashboard">
-                <iframe src="https://grafana.timburring.com/d-solo/yijzcNSIz/demo?orgId=1&from=1699749477943&to=1699922277943&panelId=4" width="650" height="200" frameborder="0" title='Grafana'></iframe>
+            <div className="dashboard-container">
+                <div className="dashboard-timeseries">
+                    <p>Job scrapped Over Time</p>
+                    <iframe src="https://grafana.timburring.com/d-solo/yijzcNSIz/demo?orgId=1&from=1699922779136&to=1700009179136&panelId=4"></iframe>
+                </div>
+                <div className="dashboard-wordcount">
+                    <p>Your Top Company Choices</p>
+                    <iframe src="https://grafana.timburring.com/d-solo/yijzcNSIz/demo?orgId=1&from=1699923680992&to=1700010080992&panelId=6"></iframe>
+                </div>
             </div>
-
             <p>Jobs Applied: {appliedJobsCount}</p>
             <p>Jobs in Process (Not Applied): {unappliedJobsCount}</p>
             <div>

@@ -1,0 +1,9 @@
+version: '3.8'
+services:
+  app:
+    build: .
+    ports:
+      - "3000:3000" # Port for frontend
+      - "3001:3001" # Port for backend
+    env_file:
+      - .env

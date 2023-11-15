@@ -4,7 +4,7 @@ const { Pool } = require('pg');
 const cors = require('cors');
 const bodyParser = require('body-parser');
 const jwt = require('jsonwebtoken');
-const bcrypt = require('bcrypt'); // Uncomment this after installing bcrypt
+const bcrypt = require('bcryptjs'); // Uncomment this after installing bcrypt
 const path = require('path');
 
 const app = express();
@@ -208,7 +208,7 @@ app.get('/applied-jobs-count', authenticateToken, async (req, res) => {
   }
 });
 
-const PORT = process.env.PORT || 3001;
+const PORT = 3001;
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
