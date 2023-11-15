@@ -25,11 +25,14 @@
 </div>
 
 ## About the project
-<div>
-<iframe width="560" height="315" src="https://www.youtube.com/embed/sttJykk34j8?si=8Mso06d0oi7PCp-C" title="EZZY Job Preview" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+
+<div align="left">
+      <a href="https://www.youtube.com/watch?v=sttJykk34j8">
+         <img src="http://img.youtube.com/vi/sttJykk34j8/0.jpg" style="width:100%;">
+      </a>
+</div>
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
-</div>
 
 This project is a simple Node.js application designed for easier access to a personalized job database and tracks job applications. It offers a user-friendly interface and efficient management tools to help job seekers keep track of their applications. This is still under development by someone who just started learning javascript and node.js 3 days ago so use it at your own risk.
 
