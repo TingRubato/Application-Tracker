@@ -6,12 +6,16 @@
 # To run the container, run: docker run -p 3000:3000 <image-name>
 
 # Use an official Node.js runtime as a parent image
-FROM node:latest
+FROM node:18.15
 
 # Set the working directory in the container to /app
 WORKDIR /app
-ENV REACT_APP_GOOGLE_API_KEY your-api-url
-ENV REACT_APP_API_URL your-api-url
+ARG REACT_APP_GOOGLE_API_KEY
+ARG REACT_APP_API_URL
+
+# Set environment variables
+ENV REACT_APP_GOOGLE_API_KEY=$REACT_APP_GOOGLE_API_KEY
+ENV REACT_APP_API_URL=$REACT_APP_API_URL
 # Copy package.json and package-lock.json to the working directory
 COPY package*.json ./
 

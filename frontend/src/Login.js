@@ -34,6 +34,7 @@ function Login() {
     <div className="login-container" style={{background: 'linear-gradient(to bottom right, #00c6ff, #0072ff)'}}>
       <div className="login-form">
         <h2>Login</h2>
+        <img src="/jobless.jpg" alt="College-Guarantee-No-Job" width="256" height="256" />
         {error && <p className="error">{error}</p>}
         <form onSubmit={handleSubmit}>
           <div className="form-group">

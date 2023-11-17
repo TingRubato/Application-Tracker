@@ -33,6 +33,7 @@
 
 .login-form .form-group {
   margin-bottom: 10px;
+  margin-right: 10px;
 }
 
 .login-form label {
@@ -42,7 +43,7 @@
 
 .login-form input {
   width: 100%;
-  padding: 10px;
+  padding: 5px;
   border-radius: 5px;
   border: 1px solid #ccc;
   font-size: 16px;

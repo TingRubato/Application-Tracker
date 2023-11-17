@@ -10,14 +10,6 @@ function JobList() {
   const jobsPerPage = 10;
   const [isLoading, setIsLoading] = useState(true);
 
-  const [windowWidth, setWindowWidth] = useState(window.innerWidth);
-
-  useEffect(() => {
-    const handleResize = () => setWindowWidth(window.innerWidth);
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
-
   useEffect(() => {
     const fetchJobs = async () => {
       setIsLoading(true);
@@ -48,13 +40,11 @@ function JobList() {
   const prevPage = currentPage > 1;
   const nextPage = currentPage < Math.ceil(jobs.length / jobsPerPage);
 
-  // Calculate the number of page buttons to display based on screen width
-  const pageButtonWidth = 42; // Assume each page button is approximately 40px wide
-  const maxPageButtons = Math.floor(windowWidth / pageButtonWidth);
-
-  // Calculate the start and end page numbers
-  let startPage, endPage;
+  // Fixed number of page buttons
+  const maxPageButtons = 10;
   const totalPage = Math.ceil(jobs.length / jobsPerPage);
+
+  let startPage, endPage;
   if (totalPage <= maxPageButtons) {
     // Case 1: total pages is less than max, show all pages
     startPage = 1;
@@ -72,7 +62,7 @@ function JobList() {
     startPage = currentPage - Math.floor(maxPageButtons / 2);
     endPage = startPage + maxPageButtons - 1;
   }
-  
+
   // Generate the page buttons
   const pageButtons = [];
   for (let i = startPage; i <= endPage; i++) {
