@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams } from 'react-router-dom'; // Import Link
 import axios from 'axios';
 import './JobDetail.css';
 import { useMemo } from 'react';
@@ -11,8 +11,8 @@ function JobDetail() {
   const { job_jk } = useParams();
   const [job, setJob] = useState(null);
   const [applicationStatus, setApplicationStatus] = useState('Not Applied');
-  
-  
+
+
   // const defaultCenter = { lat: 38.624691, lng: -90.184776 };
 
 
@@ -23,8 +23,24 @@ function JobDetail() {
           headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
         });
         setJob(response.data);
+        // Wait for the job state to be set before checking if applied
+        await new Promise(resolve => setTimeout(resolve, 0));
+        await checkIfApplied(response.data.id);
       } catch (err) {
         console.error('Error fetching job details:', err);
+      }
+    };
+
+    const checkIfApplied = async (job_jk) => {
+      try {
+        const response = await axios.get(`${process.env.REACT_APP_API_URL}/check-applied/${job_jk}`, {
+          headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+        });
+        if (response.data.applied) {
+          setApplicationStatus('Applied');
+        }
+      } catch (err) {
+        console.error('Error checking application status:', err);
       }
     };
 
@@ -106,7 +122,13 @@ function JobDetail() {
         <p><strong>Type:</strong> {job.job_type}</p>
         <p className="job-description"><strong>Description:</strong> {job.job_description}</p>
         <button onClick={handleApplyClick}>Apply</button>
-        <button onClick={handleMarkAsApplied}>{applicationStatus}</button>
+        <button
+          onClick={handleMarkAsApplied}
+          className={applicationStatus === 'Applied' ? 'applied-button' : ''}
+        >
+          {applicationStatus}
+        </button>
+
         <button onClick={() => window.history.back()}>Go Back</button>
       </div>
       <div className="App">

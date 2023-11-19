@@ -1,11 +1,9 @@
 /* JobList.css */
-.job-list {
+.job-list ul {
   list-style-type: none;
-  padding: 20px;
-  margin: 0 auto;
-  width: 90%;
-  max-width: 800px;
+  padding: 0;
 }
+
 
 .job-item {
   border: 1px solid #ddd;

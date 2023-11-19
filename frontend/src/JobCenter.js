@@ -8,8 +8,6 @@ const JobCenter = () => {
     const [unappliedJobsCount, setUnappliedJobsCount] = useState(0);
     const navigate = useNavigate(); // Initialize useNavigate hook
 
-
-
     const fetchAppliedJobsCount = async () => {
         try {
             const response = await axios.get(`${process.env.REACT_APP_API_URL}/applied-jobs-count`, {
@@ -49,11 +47,11 @@ const JobCenter = () => {
             <div className="dashboard-container">
                 <div className="dashboard-timeseries">
                     <p>Job scrapped Over Time</p>
-                    <iframe src="https://grafana.timburring.com/d-solo/yijzcNSIz/demo?orgId=1&from=1699922779136&to=1700009179136&panelId=4"></iframe>
+                    <iframe src="https://grafana.timburring.com/d-solo/yijzcNSIz/demo?orgId=1&from=1699922779136&to=1700009179136&panelId=4" title="Job Scrapped Over Time"></iframe>
                 </div>
                 <div className="dashboard-wordcount">
                     <p>Your Top Company Choices</p>
-                    <iframe src="https://grafana.timburring.com/d-solo/yijzcNSIz/demo?orgId=1&from=1699923680992&to=1700010080992&panelId=6"></iframe>
+                    <iframe src="https://grafana.timburring.com/d-solo/yijzcNSIz/demo?orgId=1&from=1699923680992&to=1700010080992&panelId=6" title="Your Top Company Choices"></iframe>
                 </div>
             </div>
             <p>Jobs Applied: {appliedJobsCount}</p>

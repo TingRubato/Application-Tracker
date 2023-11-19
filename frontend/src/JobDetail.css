@@ -32,8 +32,14 @@
     cursor: pointer;
 }
 
+.job-detail .applied-button {
+    background-color: red;
+}
+
+
 .job-detail button:disabled {
     background-color: #ccc;
+    color:tomato;
 }
 
 .job-detail button:not(:first-child) {

@@ -107,10 +107,14 @@ app.post('/mark-applied', authenticateToken, async (req, res) => {
     jobDescription
   } = req.body;
 
+  const client = await pool.connect();
+
   try {
-    const queryText = `
+    await client.query('BEGIN');
+
+    const insertQueryText = `
       INSERT INTO applied_jobs (
-        job_jk, 
+        job_id, 
         job_link, 
         company_name, 
         company_location, 
@@ -123,7 +127,7 @@ app.post('/mark-applied', authenticateToken, async (req, res) => {
       RETURNING *;
     `;
 
-    const result = await pool.query(queryText, [
+    const insertResult = await client.query(insertQueryText, [
       jobId,
       jobLink,
       companyName,
@@ -133,21 +137,71 @@ app.post('/mark-applied', authenticateToken, async (req, res) => {
       jobDescription
     ]);
 
-    res.json({ success: true, message: 'Job marked as applied.', job: result.rows[0] });
+    const updateQueryText = `
+      UPDATE processed_jobs
+      SET applied = TRUE
+      WHERE id = $1;
+    `;
+
+    await client.query(updateQueryText, [jobId]);
+
+    await client.query('COMMIT');
+
+    res.json({ success: true, message: 'Job marked as applied.', job: insertResult.rows[0] });
   } catch (err) {
+    await client.query('ROLLBACK');
     console.error('Database operation failed:', err.stack);
     res.status(500).json({ success: false, message: 'Database operation failed.' });
+  } finally {
+    client.release();
   }
 });
 
 app.get('/job-listings', authenticateToken, async (req, res) => {
+  const locationFilter = req.query.locationFilter;
+
   try {
-    const query = 'SELECT * FROM processed_jobs ORDER BY scrap_time DESC';
+    let query = `
+      SELECT * FROM processed_jobs
+      WHERE applied = FALSE
+    `;
+
+    // If a location filter is provided and it's not 'ALL'
+    if (locationFilter && locationFilter !== 'ALL') {
+      // For 'Remote', match 'Remote' in job_location
+      if (locationFilter === 'Remote') {
+        query += ` AND location_keyword ILIKE '%Remote%'`;
+      } else {
+        // For state abbreviations, match them in job_location
+        query += ` AND location_keyword ILIKE '%${locationFilter}%'`;
+      }
+    }
+
+    query += ' ORDER BY scrap_time DESC';
+
     const { rows } = await pool.query(query);
     res.json(rows);
   } catch (err) {
     console.error('Error fetching job listings', err.stack);
     res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+
+app.get('/check-applied/:jobId', async (req, res) => {
+  const { jobId } = req.params;
+
+  try {
+    // Query to check if the job is marked as applied
+    const queryText = 'SELECT COUNT(*) FROM applied_jobs WHERE job_id = $1';
+    const result = await pool.query(queryText, [jobId]);
+
+    // Check if the count is greater than 0
+    const isApplied = parseInt(result.rows[0].count, 10) > 0;
+
+    res.json({ applied: isApplied });
+  } catch (err) {
+    console.error('Error checking application status:', err);
+    res.status(500).json({ success: false, message: 'Database operation failed.' });
   }
 });
 

@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
-import './JobList.css'; // Ensure you have the CSS file for styling
+import './JobList.css';
 
 function JobList() {
   const [jobs, setJobs] = useState([]);
+  const [filteredJobs, setFilteredJobs] = useState([]);
   const [error, setError] = useState('');
+  const [locationFilter, setLocationFilter] = useState('ALL');
   const [currentPage, setCurrentPage] = useState(1);
   const jobsPerPage = 10;
   const [isLoading, setIsLoading] = useState(true);
@@ -20,6 +22,7 @@ function JobList() {
           }
         });
         setJobs(response.data);
+        setFilteredJobs(response.data);
       } catch (err) {
         setError('Could not fetch jobs. Please try again later.');
       }
@@ -29,41 +32,46 @@ function JobList() {
     fetchJobs();
   }, []);
 
+  // Function to apply the filter when button is clicked
+  const applyFilter = () => {
+    const filtered = locationFilter === 'ALL' ? jobs : jobs.filter(job => {
+      return job.job_location.includes(locationFilter) || job.job_location.includes('Remote');
+    });
+    setFilteredJobs(filtered);
+    setCurrentPage(1);  // Resetting to the first page after applying filter
+  };
+
   // Get current jobs for pagination
   const indexOfLastJob = currentPage * jobsPerPage;
   const indexOfFirstJob = indexOfLastJob - jobsPerPage;
-  const currentJobs = jobs.slice(indexOfFirstJob, indexOfLastJob);
+  const currentJobs = filteredJobs.slice(indexOfFirstJob, indexOfLastJob);
 
-  // Change page
+  // Pagination logic
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
-
   const prevPage = currentPage > 1;
-  const nextPage = currentPage < Math.ceil(jobs.length / jobsPerPage);
+  const nextPage = currentPage < Math.ceil(filteredJobs.length / jobsPerPage);
+  const totalPage = Math.ceil(filteredJobs.length / jobsPerPage);
 
-  // Fixed number of page buttons
-  const maxPageButtons = 10;
-  const totalPage = Math.ceil(jobs.length / jobsPerPage);
-
+  // Pagination buttons logic
   let startPage, endPage;
+  const maxPageButtons = 10;
   if (totalPage <= maxPageButtons) {
-    // Case 1: total pages is less than max, show all pages
     startPage = 1;
-    endPage = totalPage;
-  } else if (currentPage <= Math.floor(maxPageButtons / 2)) {
-    // Case 2: current page is near the start, show first pages
-    startPage = 1;
-    endPage = maxPageButtons;
-  } else if (currentPage + Math.floor(maxPageButtons / 2) >= totalPage) {
-    // Case 3: current page is near the end, show last pages
-    startPage = totalPage - maxPageButtons + 1;
     endPage = totalPage;
   } else {
-    // Case 4: current page is somewhere in the middle, show pages around current
-    startPage = currentPage - Math.floor(maxPageButtons / 2);
-    endPage = startPage + maxPageButtons - 1;
+    const halfMax = Math.floor(maxPageButtons / 2);
+    if (currentPage <= halfMax) {
+      startPage = 1;
+      endPage = maxPageButtons;
+    } else if (currentPage + halfMax >= totalPage) {
+      startPage = totalPage - maxPageButtons + 1;
+      endPage = totalPage;
+    } else {
+      startPage = currentPage - halfMax;
+      endPage = currentPage + halfMax;
+    }
   }
 
-  // Generate the page buttons
   const pageButtons = [];
   for (let i = startPage; i <= endPage; i++) {
     pageButtons.push(
@@ -73,8 +81,20 @@ function JobList() {
     );
   }
 
+  // Location options
+  const locationOptions = ["ALL", "Remote", "AL", "AK", "AZ", "AR", "CA", "CO", "CT", "DE", "FL", "GA", "HI", "ID", "IL", "IN", "IA", "KS", "KY", "LA", "ME", "MD", "MA", "MI", "MN", "MS", "MO", "MT", "NE", "NV", "NH", "NJ", "NM", "NY", "NC", "ND", "OH", "OK", "OR", "PA", "RI", "SC", "SD", "TN", "TX", "UT", "VT", "VA", "WA", "WV", "WI", "WY"];
+
   return (
     <div className="job-list">
+      <div className="filter-controls">
+        <select value={locationFilter} onChange={(e) => setLocationFilter(e.target.value)}>
+          {locationOptions.map(option => (
+            <option key={option} value={option}>{option}</option>
+          ))}
+        </select>
+        <button onClick={applyFilter}>Apply Filter</button>
+      </div>
+
       {isLoading ? (
         <div className="loading-indicator">
           <p>Loading Jobs...</p>
@@ -84,7 +104,7 @@ function JobList() {
           <h2>Job Listings</h2>
           {error && <p className="error">{error}</p>}
           {currentJobs.length ? (
-            <ul className="job-list">
+            <ul className="job-listing">
               {currentJobs.map((job) => (
                 <li key={job.job_jk} className="job-item">
                   <Link to={`/jobs/${job.job_jk}`}>
